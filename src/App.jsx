@@ -28,6 +28,8 @@ import CourseDetails from "./pages/CourseDetails";
 import ViewCourse from "./pages/ViewCourse";
 import VideoDetails from "./components/core/ViewCourse/VideoDetails";
 import Instructor from "./components/core/Dashboard/InstructorDashboard/Instructor";
+import ChatBot from "./components/common/ChatBot"
+import FeatureAnnouncement from "./components/common/FeatureAnnouncement"
 
 function App() {
 
@@ -159,9 +161,11 @@ function App() {
 
     <Route path="*" element={<Error />} />
 
+    
 
     </Routes>
-
+    <ChatBot />
+    <FeatureAnnouncement />
    </div>
   );
 }

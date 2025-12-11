@@ -70,3 +70,12 @@ export const settingsEndpoints = {
   CHANGE_PASSWORD_API: BASE_URL + "/auth/changepassword",
   DELETE_PROFILE_API: BASE_URL + "/profile/deleteProfile",
 }
+
+
+
+// AI ASSISTANT API
+export const aiEndpoints = {
+  AI_ASSISTANT_API: BASE_URL + "/ai/assistant",
+  AI_CHAT_HISTORY_API: BASE_URL + "/ai/history",
+  AI_CLEAR_HISTORY_API: BASE_URL + "/ai/history",
+}
