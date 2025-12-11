@@ -38,7 +38,7 @@ function ReviewSlider() {
   })();
 }, []);
 
-  console.log("Reviews Are as :",reviews)
+ // console.log("Reviews Are as :",reviews)
 
   return (
     <div className="text-white">

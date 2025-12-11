@@ -5,8 +5,11 @@ import ReactMarkdown from "react-markdown";
 import { useDispatch, useSelector } from "react-redux"
 import { useNavigate, useParams } from "react-router-dom"
 
+import { toast } from "react-hot-toast"
+import { ACCOUNT_TYPE } from "../utils/constants"
 import ConfirmationModal from "../components/common/ConfirmationModal"
 import Footer from "../components/common/Footer"
+import { addToCart } from "../slices/cartSlice"
 import RatingStars from "../components/common/RatingStars"
 import CourseAccordionBar from "../components/core/Course/CourseAccordionBar"
 import CourseDetailsCard from "../components/core/Course/CourseDetailsCard"
@@ -124,6 +127,25 @@ function CourseDetails() {
       </div>
     )
   }
+ const handleAddToCart = () => {
+    if (user && user?.accountType === ACCOUNT_TYPE.INSTRUCTOR) {
+      toast.error("You are an Instructor. You can't buy a course.")
+      return
+    }
+    const course = response?.data?.courseDetails;
+    if (token) {
+      dispatch(addToCart(course))
+      return
+    }
+    setConfirmationModal({
+      text1: "You are not logged in!",
+      text2: "Please login to add To Cart",
+      btn1Text: "Login",
+      btn2Text: "Cancel",
+      btn1Handler: () => navigate("/login"),
+      btn2Handler: () => setConfirmationModal(null),
+    })
+  }
 
   return (
     <>
@@ -177,7 +199,7 @@ function CourseDetails() {
               <button className="yellowButton" onClick={handleBuyCourse}>
                 Buy Now
               </button>
-              <button className="blackButton">Add to Cart</button>
+              <button onClick={handleAddToCart} className="blackButton">Add to Cart</button>
             </div>
           </div>
           {/* Courses Card */}
