@@ -5,9 +5,25 @@
 exports.auth = async (req,res,next)=>{
     try{
         //extract token from header
-        const token = req.cookies.token
-                    || req.body.token
-                    || req.header("Authorization").replace("Bearer ","");
+       // console.log("Header",req.headers);
+        
+        // let token =req.cookies.token || req.body.token;
+        // console.log("BODY",req.body);
+        // console.log("Token", token);
+        // // Extract token from Authorization header if not found in cookies or body
+        // if (!token && req.headers.authorization) {
+        //     token = req.headers.authorization.replace("Bearer ", "");
+        // }
+        const authHeader = req.headers.authorization; // "Bearer <token>"
+let token;
+
+if (authHeader && authHeader.startsWith("Bearer ")) {
+  token = authHeader.split(" ")[1];
+} else if (req.cookies.token) {
+  token = req.cookies.token;
+} else {
+  token = null;
+}
         //if token is missing
         if(!token){
             return res.status(401).json({
@@ -18,7 +34,7 @@ exports.auth = async (req,res,next)=>{
         // verify the token
         try{
             const decode = jwt.verify(token, process.env.JWT_SECRET);
-            console.log(decode);
+          //  console.log(decode);
             req.user = decode;
         } catch (error){
             // verification - issue
@@ -36,6 +52,23 @@ exports.auth = async (req,res,next)=>{
 
     } 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
  // isStudent
 exports.isStudent  = async (req,res,next)=>{
     try{
@@ -59,14 +92,15 @@ exports.isInstructor  = async (req,res,next)=>{
         if(req.user.accountType !== "Instructor"){
             return res.status(401).json({
                 success:false,
-                message:"This is a protected route for instructor only"
+                message:"This is ba protected route for instructor only"
             });
         } next();
     } catch (err){
-        console.log(err);
+        console.log("Role error",err);
         return res.status(401).json({
             success:false,
-            message:"Something went wrong while verifying the role"
+            message:"Something went wrong while verifying the role",
+            error:err
         });
     }
 }  

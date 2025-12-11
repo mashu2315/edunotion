@@ -20,19 +20,30 @@ const Catalog = () => {
     //Fetch all categories
     useEffect(()=> {
         const getCategories = async() => {
-            const res = await apiConnector("GET", categories.CATEGORIES_API);
-            const category_id = 
-            res?.data?.data?.filter((ct) => ct.name.split(" ").join("-").toLowerCase() === catalogName)[0]._id;
-            setCategoryId(category_id);
+            try {
+                const res = await apiConnector("GET", categories.CATEGORIES_API);
+                const category = res?.data?.data?.filter((ct) => ct.name.split(" ").join("-").toLowerCase() === catalogName)[0];
+                if (category) {
+                    setCategoryId(category._id);
+                } else {
+                    console.log("Category not found:", catalogName);
+                    setCatalogPageData({ success: false });
+                }
+            } catch(error) {
+                console.log("Error fetching categories:", error);
+                setCatalogPageData({ success: false });
+            }
         }
-        getCategories();
+        if (catalogName) {
+            getCategories();
+        }
     },[catalogName]);
 
     useEffect(() => {
         const getCategoryDetails = async() => {
             try{
                 const res = await getCatalogaPageData(categoryId);
-                console.log("PRinting res: ", res);
+                // console.log("Printing res: ", res);
                 setCatalogPageData(res);
             }
             catch(error) {
@@ -44,6 +55,32 @@ const Catalog = () => {
         }
         
     },[categoryId]);
+
+    // Filter and sort courses based on active tab
+    const getFilteredCourses = () => {
+        const courses = catalogPageData?.data?.selectedCategory?.courses || [];
+        if (active === 1) {
+            // Most Popular - sort by number of students enrolled or rating
+            return [...courses].sort((a, b) => {
+                const aEnrolled = a.studentsEnrolled?.length || 0;
+                const bEnrolled = b.studentsEnrolled?.length || 0;
+                if (bEnrolled !== aEnrolled) {
+                    return bEnrolled - aEnrolled;
+                }
+                // If enrollment is same, sort by rating
+                const aRating = a.ratingAndReviews?.length || 0;
+                const bRating = b.ratingAndReviews?.length || 0;
+                return bRating - aRating;
+            });
+        } else {
+            // New - sort by creation date (newest first)
+            return [...courses].sort((a, b) => {
+                const aDate = new Date(a.createdAt || 0);
+                const bDate = new Date(b.createdAt || 0);
+                return bDate - aDate;
+            });
+        }
+    };
 
 
     if (loading || !catalogPageData) {
@@ -89,7 +126,7 @@ const Catalog = () => {
                 } cursor-pointer`}
                 onClick={() => setActive(1)}
               >
-                Most Populer
+                Most Popular
               </p>
               <p
                 className={`px-4 py-2 ${
@@ -104,7 +141,7 @@ const Catalog = () => {
             </div>
             <div>
               <CourseSlider
-                Courses={catalogPageData?.data?.selectedCategory?.courses}
+                Courses={getFilteredCourses()}
               />
             </div>
           </div>

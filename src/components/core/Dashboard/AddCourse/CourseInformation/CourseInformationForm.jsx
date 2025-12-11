@@ -50,7 +50,7 @@ export default function CourseInformationForm() {
       setValue("coursePrice", course.price)
       setValue("courseTags", course.tag)
       setValue("courseBenefits", course.whatYouWillLearn)
-      setValue("courseCategory", course.category)
+      setValue("courseCategory", course.category?._id || course.category || "")
       setValue("courseRequirements", course.instructions)
       setValue("courseImage", course.thumbnail)
     }
@@ -68,7 +68,9 @@ export default function CourseInformationForm() {
       currentValues.coursePrice !== course.price ||
       currentValues.courseTags.toString() !== course.tag.toString() ||
       currentValues.courseBenefits !== course.whatYouWillLearn ||
-      currentValues.courseCategory._id !== course.category._id ||
+      (typeof currentValues.courseCategory === 'string' && typeof course.category === 'object' 
+        ? currentValues.courseCategory !== course.category._id
+        : currentValues.courseCategory !== (course.category?._id || course.category)) ||
       currentValues.courseRequirements.toString() !==
         course.instructions.toString() ||
       currentValues.courseImage !== course.thumbnail
@@ -80,7 +82,7 @@ export default function CourseInformationForm() {
 
   //   handle next button click
   const onSubmit = async (data) => {
-    // console.log(data)
+    console.log("form:",data)
 
     if (editCourse) {
       // const currentValues = getValues()
@@ -107,7 +109,8 @@ export default function CourseInformationForm() {
         if (currentValues.courseBenefits !== course.whatYouWillLearn) {
           formData.append("whatYouWillLearn", data.courseBenefits)
         }
-        if (currentValues.courseCategory._id !== course.category._id) {
+        const categoryId = typeof course.category === 'object' ? course.category._id : course.category;
+        if (currentValues.courseCategory !== categoryId) {
           formData.append("category", data.courseCategory)
         }
         if (
@@ -227,19 +230,22 @@ export default function CourseInformationForm() {
         </label>
         <select
           {...register("courseCategory", { required: true })}
-          defaultValue=""
+          defaultValue={editCourse ? course?.category?._id || course?.category || "" : ""}
           id="courseCategory"
           className="form-style w-full"
         >
           <option value="" disabled>
-            Choose a Category
+            {loading ? "Loading categories..." : "Choose a Category"}
           </option>
-          {!loading &&
-            courseCategories?.map((category, indx) => (
+          {!loading && courseCategories?.length > 0 ? (
+            courseCategories.map((category, indx) => (
               <option key={indx} value={category?._id}>
                 {category?.name}
               </option>
-            ))}
+            ))
+          ) : !loading ? (
+            <option value="" disabled>No categories available</option>
+          ) : null}
         </select>
         {errors.courseCategory && (
           <span className="ml-2 text-xs tracking-wide text-pink-200">
@@ -306,6 +312,8 @@ export default function CourseInformationForm() {
         <IconBtn
           disabled={loading}
           text={!editCourse ? "Next" : "Save Changes"}
+          onClick={handleSubmit(onSubmit)}
+
         >
           <MdNavigateNext />
         </IconBtn>

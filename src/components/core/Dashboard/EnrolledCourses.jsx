@@ -1,28 +1,35 @@
-import { useEffect, useState } from "react"
-import ProgressBar from "@ramonak/react-progress-bar"
-import { BiDotsVerticalRounded } from "react-icons/bi"
-import { useSelector } from "react-redux"
-import { useNavigate } from "react-router-dom"
+import { useEffect, useState } from "react";
+import ProgressBar from "@ramonak/react-progress-bar";
+import { BiDotsVerticalRounded } from "react-icons/bi";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
-import { getUserEnrolledCourses } from "../../../services/operations/profileAPI"
+import { getUserEnrolledCourses } from "../../../services/operations/profileAPI";
 
 export default function EnrolledCourses() {
-  const { token } = useSelector((state) => state.auth)
-  const navigate = useNavigate()
+  const { token } = useSelector((state) => state.auth);
+  
+  const navigate = useNavigate();
 
-  const [enrolledCourses, setEnrolledCourses] = useState(null)
+  const [enrolledCourses, setEnrolledCourses] = useState(null);
   const getEnrolledCourses = async () => {
     try {
       const res = await getUserEnrolledCourses(token);
-
+       // console.log("Enrolled Courses Fetched Successfully", res);
       setEnrolledCourses(res);
     } catch (error) {
-      console.log("Could not fetch enrolled courses.")
+      console.log("Could not fetch enrolled courses.", error);
+      setEnrolledCourses([]); // Show empty state
     }
   };
+  // useEffect(() => {
+  //   getEnrolledCourses();
+  // }, [])
   useEffect(() => {
-    getEnrolledCourses();
-  }, [])
+    if (token) {
+      getEnrolledCourses();
+    }
+  }, [token]);
 
   return (
     <>
@@ -50,31 +57,42 @@ export default function EnrolledCourses() {
               className={`flex items-center border border-richblack-700 ${
                 i === arr.length - 1 ? "rounded-b-lg" : "rounded-none"
               }`}
-              key={i}
+              key={course._id || i}
             >
               <div
                 className="flex w-[45%] cursor-pointer items-center gap-4 px-5 py-3"
                 onClick={() => {
-                  navigate(
-                    `/view-course/${course?._id}/section/${course.courseContent?.[0]?._id}/sub-section/${course.courseContent?.[0]?.subSection?.[0]?._id}`
-                  )
+                  if (
+                    course.courseContent?.length > 0 &&
+                    course.courseContent[0]?.subSection?.length > 0
+                  ) {
+                    navigate(
+                      `/view-course/${course._id}/section/${course.courseContent[0]._id}/sub-section/${course.courseContent[0].subSection[0]._id}`
+                    );
+                  } else {
+                    // Navigate to course view even if no content yet
+                    navigate(`/view-course/${course._id}`);
+                  }
                 }}
               >
                 <img
-                  src={course.thumbnail}
+                  src={course.thumbnail || "/placeholder-course.png"}
                   alt="course_img"
                   className="h-14 w-14 rounded-lg object-cover"
+                  onError={(e) => {
+                    e.target.src = "/placeholder-course.png";
+                  }}
                 />
                 <div className="flex max-w-xs flex-col gap-2">
                   <p className="font-semibold">{course.courseName}</p>
                   <p className="text-xs text-richblack-300">
-                    {course.courseDescription.length > 50
+                    {course.courseDescription && course.courseDescription.length > 50
                       ? `${course.courseDescription.slice(0, 50)}...`
-                      : course.courseDescription}
+                      : course.courseDescription || "No description available"}
                   </p>
                 </div>
               </div>
-              <div className="w-1/4 px-2 py-3">{course?.totalDuration}</div>
+              <div className="w-1/4 px-2 py-3">{course?.totalDuration || "N/A"}</div>
               <div className="flex w-1/5 flex-col gap-2 px-2 py-3">
                 <p>Progress: {course.progressPercentage || 0}%</p>
                 <ProgressBar
@@ -88,5 +106,5 @@ export default function EnrolledCourses() {
         </div>
       )}
     </>
-  )
+  );
 }

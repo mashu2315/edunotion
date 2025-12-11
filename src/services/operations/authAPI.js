@@ -25,9 +25,9 @@ export function sendOtp(email, navigate) {
         email,
         checkUserPresent: true,
       })
-      console.log("SENDOTP API RESPONSE............", response)
+     // console.log("SENDOTP API RESPONSE............", response)
 
-      console.log(response.data.success)
+     // console.log(response.data.success)
 
       if (!response.data.success) {
         throw new Error(response.data.message)
@@ -69,7 +69,7 @@ export function signUp(
         otp,
       })
      
-      console.log("SIGNUP API RESPONSE............", response)
+    //  console.log("SIGNUP API RESPONSE............", response)
 
       if (!response.data.success) {
         throw new Error(response.data.message)
@@ -96,7 +96,7 @@ export function login(email, password, navigate) {
         password,
       })
 
-      console.log("LOGIN API RESPONSE............", response)
+     // console.log("LOGIN API RESPONSE............", response)
 
       if (!response.data.success) {
         throw new Error(response.data.message)
@@ -134,8 +134,8 @@ export function logout(navigate) {
 }
 
 export function getPasswordResetToken(email , setEmailSent) {
-  console.log("EMAIL-", email)
-  console.log("setEmailSent-", setEmailSent)
+  // console.log("EMAIL-", email)
+   // console.log("setEmailSent-", setEmailSent)
   return async(dispatch) => {
     
     dispatch(setLoading(true));
@@ -144,7 +144,7 @@ export function getPasswordResetToken(email , setEmailSent) {
       
       const response = await apiConnector("POST", RESETPASSTOKEN_API, {email,})
       
-      console.log("RESET PASSWORD TOKEN RESPONSE....", response);
+     // console.log("RESET PASSWORD TOKEN RESPONSE....", response);
 
       if(!response.data.success) {
         throw new Error(response.data.message);
@@ -168,7 +168,7 @@ export function resetPassword(password, confirmPassword, token) {
     try{
       const response = await apiConnector("POST", RESETPASSWORD_API, {password, confirmPassword, token});
 
-      console.log("RESET PASSWORD RESPONSE ... ", response);
+      // console.log("RESET PASSWORD RESPONSE ... ", response);
 
 
       if(!response.data.success) {

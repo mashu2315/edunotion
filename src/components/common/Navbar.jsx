@@ -19,6 +19,7 @@ function Navbar() {
 
   const [subLinks, setSubLinks] = useState([])
   const [loading, setLoading] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   useEffect(() => {
     ;(async () => {
@@ -27,13 +28,13 @@ function Navbar() {
         const res = await apiConnector("GET", categories.CATEGORIES_API)
         setSubLinks(res.data.data)
       } catch (error) {
-        console.log("Could not fetch Categories.", error)
+       // console.log("Could not fetch Categories.", error)
       }
       setLoading(false)
     })()
   }, [])
 
-  console.log("sub links is: ", subLinks)
+ // console.log("sub links is: ", subLinks)
 
   const matchRoute = (route) => {
     return matchPath({ path: route }, location.pathname)
@@ -140,10 +141,115 @@ function Navbar() {
           )}
           {token !== null && <ProfileDropdown />}
         </div>
-        <button className="mr-4 md:hidden">
+        <button 
+          className="mr-4 md:hidden"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+        >
           <AiOutlineMenu fontSize={24} fill="#AFB2BF" />
         </button>
       </div>
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <div className="absolute left-0 top-14 z-50 w-full bg-richblack-800 md:hidden">
+          <div className="flex flex-col p-4 space-y-4">
+            {/* Navigation links */}
+            <nav>
+              <ul className="flex flex-col gap-y-4 text-richblack-25">
+                {NavbarLinks.map((link, index) => (
+                  <li key={index}>
+                    {link.title === "Catalog" ? (
+                      <div className="flex flex-col">
+                        <div
+                          className={`flex cursor-pointer items-center gap-1 ${
+                            matchRoute("/catalog/:catalogName")
+                              ? "text-yellow-25"
+                              : "text-richblack-25"
+                          }`}
+                        >
+                          <p>{link.title}</p>
+                          <BsChevronDown />
+                        </div>
+                        {subLinks && subLinks.length > 0 && (
+                          <div className="mt-2 ml-4 flex flex-col space-y-2">
+                            {subLinks
+                              ?.filter(
+                                (subLink) => subLink?.courses?.length > 0
+                              )
+                              ?.map((subLink, i) => (
+                                <Link
+                                  to={`/catalog/${subLink.name
+                                    .split(" ")
+                                    .join("-")
+                                    .toLowerCase()}`}
+                                  className="text-richblack-200 hover:text-yellow-25"
+                                  key={i}
+                                  onClick={() => setMobileMenuOpen(false)}
+                                >
+                                  {subLink.name}
+                                </Link>
+                              ))}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <Link 
+                        to={link?.path}
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <p
+                          className={`${
+                            matchRoute(link?.path)
+                              ? "text-yellow-25"
+                              : "text-richblack-25"
+                          }`}
+                        >
+                          {link.title}
+                        </p>
+                      </Link>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </nav>
+            {/* Login / Signup / Dashboard */}
+            <div className="flex flex-col gap-y-4 border-t border-richblack-700 pt-4">
+              {user && user?.accountType !== ACCOUNT_TYPE.INSTRUCTOR && (
+                <Link 
+                  to="/dashboard/cart" 
+                  className="relative flex items-center"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <AiOutlineShoppingCart className="text-2xl text-richblack-100" />
+                  {totalItems > 0 && (
+                    <span className="ml-2 grid h-5 w-5 place-items-center overflow-hidden rounded-full bg-richblack-600 text-center text-xs font-bold text-yellow-100">
+                      {totalItems}
+                    </span>
+                  )}
+                </Link>
+              )}
+              {token === null && (
+                <>
+                  <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
+                    <button className="w-full rounded-[8px] border border-richblack-700 bg-richblack-800 px-[12px] py-[8px] text-richblack-100">
+                      Log in
+                    </button>
+                  </Link>
+                  <Link to="/signup" onClick={() => setMobileMenuOpen(false)}>
+                    <button className="w-full rounded-[8px] border border-richblack-700 bg-richblack-800 px-[12px] py-[8px] text-richblack-100">
+                      Sign up
+                    </button>
+                  </Link>
+                </>
+              )}
+              {token !== null && (
+                <div onClick={() => setMobileMenuOpen(false)}>
+                  <ProfileDropdown />
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

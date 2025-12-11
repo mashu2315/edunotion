@@ -20,15 +20,16 @@ const PORT = process.env.PORT || 4000;
 //database connect
 database.connect();
 //middlewares
-app.use(express.json());
 app.use(cookieParser());
+app.use(express.json());
+
 // updating cors 
 app.use(cors({
-  origin: ["http://localhost:5173"], // Allow the correct frontend origin
-  methods: "GET,POST,PUT,DELETE",
-  credentials: true
+  origin: "http://localhost:5173", 
+  credentials: true,
+   allowedHeaders: ["Content-Type", "Authorization"],
+    methods: "GET,POST,PUT,DELETE",
 }));
-
 app.use(
 	fileUpload({
 		useTempFiles:true,

@@ -1,11 +1,23 @@
-import { useSelector } from "react-redux"
-import { Outlet } from "react-router-dom"
+import { useEffect } from "react"
+import { useSelector, useDispatch } from "react-redux"
+import { Outlet, useNavigate } from "react-router-dom"
 
 import Sidebar from "../components/core/Dashboard/Sidebar"
+import { getUserDetails } from "../services/operations/profileAPI"
 
 function Dashboard() {
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
   const { loading: profileLoading } = useSelector((state) => state.profile)
   const { loading: authLoading } = useSelector((state) => state.auth)
+  const { token } = useSelector((state) => state.auth)
+  const { user } = useSelector((state) => state.profile)
+
+  useEffect(() => {
+    if (token && !user) {
+      dispatch(getUserDetails(token, navigate))
+    }
+  }, [token, user, dispatch, navigate])
 
   if (profileLoading || authLoading) {
     return (

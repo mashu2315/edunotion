@@ -9,8 +9,10 @@ const Course_Card = ({course, Height}) => {
     const [avgReviewCount, setAvgReviewCount] = useState(0);
 
     useEffect(()=> {
-        const count = GetAvgRating(course.ratingAndReviews);
-        setAvgReviewCount(count);
+        if (course?.ratingAndReviews) {
+            const count = GetAvgRating(course.ratingAndReviews);
+            setAvgReviewCount(count);
+        }
     },[course])
 
 
@@ -21,9 +23,12 @@ const Course_Card = ({course, Height}) => {
         <div className="">
           <div className="rounded-lg">
             <img
-              src={course?.thumbnail}
-              alt="course thumnail"
+              src={course?.thumbnail || "/placeholder-course.png"}
+              alt="course thumbnail"
               className={`${Height} w-full rounded-xl object-cover `}
+              onError={(e) => {
+                e.target.src = "/placeholder-course.png";
+              }}
             />
           </div>
           <div className="flex flex-col gap-2 px-1 py-3">

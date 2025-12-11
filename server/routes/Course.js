@@ -90,6 +90,8 @@ router.post("/updateCourseProgress", auth, isStudent, updateCourseProgress);
 // Category can Only be Created by Admin
 // TODO: Put IsAdmin Middleware here
 router.post("/createCategory", auth, isAdmin, createCategory)
+
+
 router.get("/showAllCategories", showAllCategories)
 router.post("/getCategoryPageDetails", categoryPageDetails)
 
